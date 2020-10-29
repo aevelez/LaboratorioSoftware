@@ -196,6 +196,11 @@ namespace LiveCameraSample
                     // Detect faces from load image.
                     var faces = await _faceClient.Face.DetectWithStreamAsync(jpg, returnFaceAttributes: attrs);
                     // Add detected faceId to list of GUIDs.
+                    if (!faces.Any())
+                    {
+                        lblResult.Content = $"no Faces detected in the image.";
+                        return false;
+                    }
                     targetFaceIds.Add(faces[0].FaceId.Value);
                 }
 

@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="FaceAPIKey" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+      <Value Profile="(Default)">540f5628a89945699eeccf5bd50aaca4</Value>
     </Setting>
     <Setting Name="VisionAPIKey" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
