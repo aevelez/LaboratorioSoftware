@@ -45,7 +45,7 @@ namespace VideoFrameAnalyzer
     /// <summary> A frame grabber. </summary>
     /// <typeparam name="AnalysisResultType"> Type of the analysis result. This is the type that
     ///     the AnalysisFunction will return, when it calls some API on a video frame. </typeparam>
-    public class FrameGrabber<AnalysisResultType> : IDisposable
+    public class FrameGrabber<AnalysisResultType> 
     {
         #region Types
 
@@ -481,27 +481,7 @@ namespace VideoFrameAnalyzer
             {
                 return null;
             }
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposedValue)
-            {
-                if (disposing)
-                {
-                    _frameGrabTimer.Dispose();
-                    _timer?.Dispose();
-                    _timerMutex.Dispose();
-                    _analysisTaskQueue?.Dispose();
-                }
-                disposedValue = true;
-            }
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-        }
+        }      
 
         #endregion Methods
 

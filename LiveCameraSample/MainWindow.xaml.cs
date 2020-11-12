@@ -54,7 +54,7 @@ namespace LiveCameraSample
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : System.Windows.Window, IDisposable
+    public partial class MainWindow : System.Windows.Window
     {
         private FaceAPI.FaceClient _faceClient = null;
         private readonly FrameGrabber<LiveCameraResult> _grabber;
@@ -310,25 +310,6 @@ namespace LiveCameraSample
 
         private bool disposedValue = false; // To detect redundant calls
         private string DocumentImagePath;
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposedValue)
-            {
-                if (disposing)
-                {
-                    _grabber?.Dispose();
-                    _faceClient?.Dispose();
-                }
-
-                disposedValue = true;
-            }
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-        }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
