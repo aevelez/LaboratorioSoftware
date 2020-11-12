@@ -158,6 +158,12 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="assets\Diagrama de contexto.png" />
+    <Resource Include="assets\1.png" />
+    <Resource Include="assets\2.png" />
+    <Resource Include="assets\3.png" />
+    <Resource Include="assets\5.jpg" />
+    <Resource Include="assets\6.jpg" />
+    <Resource Include="assets\7.png" />
     <Content Include="Data\haarcascade_frontalface_alt2.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
