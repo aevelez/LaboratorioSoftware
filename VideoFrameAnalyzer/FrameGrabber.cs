@@ -36,7 +36,6 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using OpenCvSharp;
@@ -137,20 +136,7 @@ namespace VideoFrameAnalyzer
 
         #endregion Fields
 
-        #region Methods
-
-        public FrameGrabber()
-        {
-        }
-
-        /// <summary> (Only available in TRACE_GRABBER builds) logs a message. </summary>
-        /// <param name="format"> Describes the format to use. </param>
-        /// <param name="args">   Event information. </param>
-        [Conditional("TRACE_GRABBER")]
-        protected void LogMessage(string format, params object[] args)
-        {
-            ConcurrentLogger.WriteLine(String.Format(format, args));
-        }
+        #region Methods              
 
         /// <summary> Starts processing frames from a live camera. Stops any current video source
         ///     before starting the new source. </summary>
@@ -202,11 +188,8 @@ namespace VideoFrameAnalyzer
                 var frameCount = 0;
                 while (!_stopping)
                 {
-                    LogMessage("Producer: waiting for timer to trigger frame-grab");
-
                     // Wait to get released by the timer.
                     _frameGrabTimer.WaitOne();
-                    LogMessage("Producer: grabbing frame...");
 
                     var startTime = DateTime.Now;
 
@@ -215,14 +198,11 @@ namespace VideoFrameAnalyzer
                     Mat image = new Mat();
                     bool success = _reader.Read(image);
 
-                    LogMessage("Producer: frame-grab took {0} ms", (DateTime.Now - startTime).Milliseconds);
-
                     if (!success)
                     {
                         // If we've reached the end of the video, stop here.
                         if (_reader.CaptureType == CaptureType.File)
                         {
-                            LogMessage("Producer: null frame from video file, stop!");
                             // This will call StopProcessing on a new thread.
                             var stopTask = StopProcessingAsync();
                             // Break out of the loop to make sure we don't try grabbing more
@@ -232,7 +212,6 @@ namespace VideoFrameAnalyzer
                         else
                         {
                             // If failed on live camera, try again.
-                            LogMessage("Producer: null frame from live camera, continue!");
                             continue;
                         }
                     }
@@ -244,32 +223,19 @@ namespace VideoFrameAnalyzer
                     VideoFrame vframe = new VideoFrame(image, meta);
 
                     // Raise the new frame event
-                    LogMessage("Producer: new frame provided, should analyze? Frame num: {0}", meta.Index);
                     OnNewFrameProvided(vframe);
 
                     if (_analysisPredicate(vframe))
                     {
-                        LogMessage("Producer: analyzing frame");
-
                         // Call the analysis function on a threadpool thread
                         var analysisTask = DoAnalyzeFrame(vframe);
-
-                        LogMessage("Producer: adding analysis task to queue {0}", analysisTask.Id);
 
                         // Push the frame onto the queue
                         _analysisTaskQueue.Add(analysisTask);
                     }
-                    else
-                    {
-                        LogMessage("Producer: not analyzing frame");
-                    }
-
-                    LogMessage("Producer: iteration took {0} ms", (DateTime.Now - startTime).Milliseconds);
-
                     ++frameCount;
                 }
 
-                LogMessage("Producer: stopping, destroy reader and timer");
                 _analysisTaskQueue.CompleteAdding();
 
                 // We reach this point by breaking out of the while loop. So we must be stopping.
@@ -281,17 +247,13 @@ namespace VideoFrameAnalyzer
                 _timer.Dispose(h);
                 h.WaitOne();
                 _timer = null;
-
-                LogMessage("Producer: stopped");
             }, TaskCreationOptions.LongRunning);
 
             _consumerTask = Task.Factory.StartNew(async () =>
             {
                 while (!_analysisTaskQueue.IsCompleted)
                 {
-                    LogMessage("Consumer: waiting for task to get added");
-
-                    // Get the next processing task.
+                     // Get the next processing task.
                     Task<NewResultEventArgs> nextTask = null;
 
                     // Blocks if m_analysisTaskQueue.Count == 0
@@ -310,16 +272,12 @@ namespace VideoFrameAnalyzer
                     if (nextTask != null)
                     {
                         // Block until the result becomes available.
-                        LogMessage("Consumer: waiting for next result to arrive for task {0}", nextTask.Id);
                         var result = await nextTask;
 
                         // Raise the new result event.
-                        LogMessage("Consumer: got result for frame {0}. {1} tasks in queue", result.Frame.Metadata.Index, _analysisTaskQueue.Count);
-                        OnNewResultAvailable(result);
+                         OnNewResultAvailable(result);
                     }
                 }
-
-                LogMessage("Consumer: stopped");
             }, TaskCreationOptions.LongRunning);
 
             // Set up a timer object that will trigger the frame-grab at a regular interval.
@@ -333,11 +291,6 @@ namespace VideoFrameAnalyzer
 
                     _frameGrabTimer.Set();
 
-                    if (missed)
-                    {
-                        LogMessage("Timer: missed frame-grab {0}", timerIterations - 1);
-                    }
-                    LogMessage("Timer: grab frame num {0}", timerIterations);
                     ++timerIterations;
                 }
                 finally
@@ -506,7 +459,6 @@ namespace VideoFrameAnalyzer
             {
                 NewResultEventArgs output = new NewResultEventArgs(frame);
                 var task = fcn(frame);
-                LogMessage("DoAnalysis: started task {0}", task.Id);
                 try
                 {
                     if (task == await Task.WhenAny(task, Task.Delay(AnalysisTimeout, source.Token)))
@@ -523,9 +475,6 @@ namespace VideoFrameAnalyzer
                 {
                     output.Exception = ae;
                 }
-
-                LogMessage("DoAnalysis: returned from task {0}", task.Id);
-
                 return output;
             }
             else
@@ -545,7 +494,6 @@ namespace VideoFrameAnalyzer
                     _timerMutex.Dispose();
                     _analysisTaskQueue?.Dispose();
                 }
-
                 disposedValue = true;
             }
         }

@@ -164,9 +164,6 @@
     <Resource Include="assets\5.jpg" />
     <Resource Include="assets\6.jpg" />
     <Resource Include="assets\7.png" />
-    <Content Include="Data\haarcascade_frontalface_alt2.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\VideoFrameAnalyzer\VideoFrameAnalyzer.csproj">
