@@ -45,7 +45,7 @@ using System.Windows.Navigation;
 using Microsoft.Azure.CognitiveServices.Vision.Face;
 using Microsoft.Azure.CognitiveServices.Vision.Face.Models;
 using OpenCvSharp;
-using OpenCvSharp.Extensions;
+using OpenCvSharp.WpfExtensions;
 using VideoFrameAnalyzer;
 using FaceAPI = Microsoft.Azure.CognitiveServices.Vision.Face;
 
@@ -88,16 +88,8 @@ namespace LiveCameraSample
                 {
                     // Display the image in the left pane.
                     LeftImage.Source = e.Frame.Image.ToBitmapSource();
-
-                    // If we're fusing client-side face detection with remote analysis, show the
-                    // new frame now with the most recent analysis available. 
-                    //if (_fuseClientRemoteResults)
-                    {
-                        RightImage.Source = VisualizeResult(e.Frame);
-
-                    }
+                    RightImage.Source = VisualizeResult(e.Frame);
                 }));
-
 
                 // See if auto-stop should be triggered. 
                 if (Properties.Settings.Default.AutoStopEnabled && (DateTime.Now - _startTime) > Properties.Settings.Default.AutoStopTime)
@@ -125,7 +117,7 @@ namespace LiveCameraSample
                             apiName = "Face";
                             message = faceEx.Message;
                         }
-                       
+
                         MessageArea.Text = string.Format("{0} API call failed on frame {1}. Exception: {2}", apiName, e.Frame.Metadata.Index, message);
                     }
                     else
@@ -150,12 +142,10 @@ namespace LiveCameraSample
                     }
                 }));
             };
-
         }
 
         public async Task<bool> FindSimilar(DetectedFace cameraFace)
         {
-
             try
             {
                 if (string.IsNullOrWhiteSpace(DocumentImagePath))
@@ -163,9 +153,9 @@ namespace LiveCameraSample
                 IList<Guid?> targetFaceIds = new List<Guid?>();
                 using (var jpg = File.OpenRead(DocumentImagePath))
                 {
-                
+
                     // Detect faces from load image.
-                    var faces = await _faceClient.Face.DetectWithStreamAsync(jpg, recognitionModel:RecognitionModel.Recognition03, detectionModel:DetectionModel.Detection02);
+                    var faces = await _faceClient.Face.DetectWithStreamAsync(jpg, recognitionModel: RecognitionModel.Recognition03, detectionModel: DetectionModel.Detection02);
                     // Add detected faceId to list of GUIDs.
                     if (!faces.Any())
                     {
@@ -174,21 +164,6 @@ namespace LiveCameraSample
                     }
                     targetFaceIds.Add(faces[0].FaceId.Value);
                 }
-
-                // Find a similar face(s) in the list of IDs. Comapring only the first in list for testing purposes.
-                //IList<SimilarFace> similarResults = await _faceClient.Face.FindSimilarAsync(cameraFace.FaceId.Value, null,null, targetFaceIds);
-
-                //if (similarResults.Any())
-                //{
-                //    lblResult.Content = $"Faces are similar with confidence: {similarResults.First().Confidence}.";
-                //    return true;
-                //}
-                //else
-                //{
-                //    lblResult.Content = $"Faces are not identical.";
-
-                //    return false;
-                //}
                 var similarResults = await _faceClient.Face.VerifyFaceToFaceAsync(cameraFace.FaceId.Value, targetFaceIds.First().Value);
 
                 if (similarResults.IsIdentical)
@@ -209,7 +184,6 @@ namespace LiveCameraSample
             }
         }
 
-
         /// <summary> Function which submits a frame to the Face API. </summary>
         /// <param name="frame"> The video frame to submit. </param>
         /// <returns> A <see cref="Task{LiveCameraResult}"/> representing the asynchronous API call,
@@ -219,23 +193,18 @@ namespace LiveCameraSample
             // Encode image. 
             var jpg = frame.Image.ToMemoryStream(".jpg", s_jpegParams);
             // Submit image to API. 
-           
-            var faces = await _faceClient.Face.DetectWithStreamAsync(jpg, recognitionModel: RecognitionModel.Recognition03, detectionModel:DetectionModel.Detection02);
+
+            var faces = await _faceClient.Face.DetectWithStreamAsync(jpg, recognitionModel: RecognitionModel.Recognition03, detectionModel: DetectionModel.Detection02);
             // Count the API call. 
             Properties.Settings.Default.FaceAPICallCount++;
             // Output. 
             return new LiveCameraResult { Faces = faces.ToArray() };
         }
-  
+
         private BitmapSource VisualizeResult(VideoFrame frame)
         {
             // Draw any results on top of the image. 
             BitmapSource visImage = frame.Image.ToBitmapSource();
-
-            var result = _latestResultsToDisplay;
-
-           
-
             return visImage;
         }
 
@@ -280,7 +249,7 @@ namespace LiveCameraSample
             {
                 case AppMode.Faces:
                     _grabber.AnalysisFunction = FacesAnalysisFunction;
-                    break;                
+                    break;
                 default:
                     _grabber.AnalysisFunction = null;
                     break;
@@ -304,7 +273,7 @@ namespace LiveCameraSample
             {
                 Endpoint = Properties.Settings.Default.FaceAPIHost
             };
-          
+
             // How often to analyze. 
             _grabber.TriggerAnalysisOnInterval(Properties.Settings.Default.AnalysisInterval);
 

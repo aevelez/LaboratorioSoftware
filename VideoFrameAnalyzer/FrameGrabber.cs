@@ -98,7 +98,6 @@ namespace VideoFrameAnalyzer
         ///     frame. </summary>
         /// <value> The analysis timeout. </value>
         public TimeSpan AnalysisTimeout { get; set; } = TimeSpan.FromMilliseconds(5000);
-
         public bool IsRunning { get { return _analysisTaskQueue != null; } }
 
         public double FrameRate
