@@ -42,6 +42,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
+using LiveCameraCommand;
 using Microsoft.Azure.CognitiveServices.Vision.Face;
 using Microsoft.Azure.CognitiveServices.Vision.Face.Models;
 using OpenCvSharp;
@@ -56,7 +57,7 @@ namespace LiveCameraSample
     /// </summary>
     public partial class MainWindow : System.Windows.Window
     {
-        private FaceAPI.FaceClient _faceClient = null;
+        private FaceClient _faceClient = null;
         private readonly FrameGrabber<LiveCameraResult> _grabber;
         private static readonly ImageEncodingParam[] s_jpegParams = {
             new ImageEncodingParam(ImwriteFlags.JpegQuality, 60)
@@ -155,16 +156,20 @@ namespace LiveCameraSample
                 {
 
                     // Detect faces from load image.
-                    var faces = await _faceClient.Face.DetectWithStreamAsync(jpg, recognitionModel: RecognitionModel.Recognition03, detectionModel: DetectionModel.Detection02);
-                    // Add detected faceId to list of GUIDs.
-                    if (!faces.Any())
+                    var detectWithStreamCmd = new DetectWithStreamCmd();
+                    byte[] jpeg = File.ReadAllBytes(DocumentImagePath);
+                    var faces = await detectWithStreamCmd.DetectWithStreamAsync(jpeg, recognitionModel: RecognitionModel.Recognition03, detectionModel: DetectionModel.Detection02);
+
+                    //// Add detected faceId to list of GUIDs.
+                    if (faces.Count <= 0)
                     {
                         lblResult.Content = $"no Faces detected in the image.";
                         return false;
                     }
                     targetFaceIds.Add(faces[0].FaceId.Value);
                 }
-                var similarResults = await _faceClient.Face.VerifyFaceToFaceAsync(cameraFace.FaceId.Value, targetFaceIds.First().Value);
+                var verifyFaceToFaceCmd = new VerifyFaceToFaceCmd();
+                var similarResults = await verifyFaceToFaceCmd.VerifyFaceToFaceAsync(cameraFace.FaceId.Value, targetFaceIds.First().Value);
 
                 if (similarResults.IsIdentical)
                 {
@@ -193,6 +198,7 @@ namespace LiveCameraSample
             // Encode image. 
             var jpg = frame.Image.ToMemoryStream(".jpg", s_jpegParams);
             // Submit image to API. 
+
 
             var faces = await _faceClient.Face.DetectWithStreamAsync(jpg, recognitionModel: RecognitionModel.Recognition03, detectionModel: DetectionModel.Detection02);
             // Count the API call. 
@@ -274,6 +280,7 @@ namespace LiveCameraSample
                 Endpoint = Properties.Settings.Default.FaceAPIHost
             };
 
+
             // How often to analyze. 
             _grabber.TriggerAnalysisOnInterval(Properties.Settings.Default.AnalysisInterval);
 
@@ -330,6 +337,7 @@ namespace LiveCameraSample
                 DocumentImagePath = dlg.FileName;
                 // Open document 
                 DocumentImage.Source = new BitmapImage(new Uri(dlg.FileName));
+               
             }
         }
     }

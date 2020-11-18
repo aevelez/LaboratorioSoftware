@@ -27,10 +27,10 @@
       <Value Profile="(Default)">00:05:00</Value>
     </Setting>
     <Setting Name="FaceAPIHost" Type="System.String" Scope="User">
-      <Value Profile="(Default)">https://westus.api.cognitive.microsoft.com</Value>
+      <Value Profile="(Default)">https://testlaboratioreconocimientofacial.cognitiveservices.azure.com</Value>
     </Setting>
     <Setting Name="VisionAPIHost" Type="System.String" Scope="User">
-      <Value Profile="(Default)">https://westus.api.cognitive.microsoft.com</Value>
+      <Value Profile="(Default)">https://testlaboratioreconocimientofacial.cognitiveservices.azure.com</Value>
     </Setting>
   </Settings>
 </SettingsFile>
