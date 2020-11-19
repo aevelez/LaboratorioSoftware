@@ -16,9 +16,7 @@
             <ComboBox x:Name="CameraList" Width="100" Margin="5,5,0,5" Loaded="CameraList_Loaded" />
             <Button Content="Start Camera" Padding="5,0" Margin="5,5,0,5" Click="StartButton_Click" />
             <Button Content="Stop Camera" Padding="5,0" Margin="5,5,0,5" Click="StopButton_Click" />
-            <TextBlock VerticalAlignment="Center" Margin="15,5,0,5" Text="Mode:" />
-            <ComboBox x:Name="ModeList" Width="100" Margin="5,5,0,5" Loaded="ModeList_Loaded" SelectionChanged="ModeList_SelectionChanged" />
-        </StackPanel>
+         </StackPanel>
         <Button Content="Show/Hide Settings" Padding="5,0" Margin="5" Click="SettingsButton_Click" HorizontalAlignment="Right" />
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
@@ -56,22 +54,12 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-                    <TextBlock Margin="5" Grid.Row="0" Grid.Column="0" Text="Face API Key:" />
-                    <TextBox   Margin="5" Grid.Row="0" Grid.Column="1" Text="{Binding Source={StaticResource Settings}, Path=Default.FaceAPIKey, Mode=TwoWay}" />
-                    <TextBlock Margin="5" Grid.Row="1" Grid.Column="0" Text="Face API Host:" />
-                    <TextBox   Margin="5" Grid.Row="1" Grid.Column="1" Text="{Binding Source={StaticResource Settings}, Path=Default.FaceAPIHost, Mode=TwoWay}" />
-                    <!--<TextBlock Margin="5" Grid.Row="2" Grid.Column="0" Text="Vision API Key:" />
-                    <TextBox   Margin="5" Grid.Row="2" Grid.Column="1" Text="{Binding Source={StaticResource Settings}, Path=Default.VisionAPIKey, Mode=TwoWay}" />
-                    <TextBlock Margin="5" Grid.Row="3" Grid.Column="0" Text="Vision API Host:" />
-                    <TextBox   Margin="5" Grid.Row="3" Grid.Column="1" Text="{Binding Source={StaticResource Settings}, Path=Default.VisionAPIHost, Mode=TwoWay}" />-->
-                    <!--<TextBlock Margin="5" Grid.Row="4" Grid.ColumnSpan="2" TextWrapping="Wrap"><Run ext="Get API keys at "/><Hyperlink NavigateUri="http://www.microsoft.com/cognitive" RequestNavigate="Hyperlink_RequestNavigate"><Run Text="microsoft.com/cognitive"/></Hyperlink></TextBlock>-->
-                    <TextBlock Margin="5" Grid.Row="2" Grid.Column="0" Text="API Call Interval:" />
+                     <TextBlock Margin="5" Grid.Row="2" Grid.Column="0" Text="API Call Interval:" />
                     <TextBox   Margin="5" Grid.Row="2" Grid.Column="1" Text="{Binding Source={StaticResource Settings}, Path=Default.AnalysisInterval, Mode=TwoWay}" />
                     <TextBlock Margin="5" Grid.Row="3" Grid.ColumnSpan="2" TextWrapping="Wrap"><Run FontWeight="Bold" Text="Caution"/><Run Text=": Each video frame submitted to an API will count towards your transaction limit."/></TextBlock>
                 </Grid>
                 <TextBlock Margin="5,0,5,5">
                     <Run Text="Face API calls made = "/><Run Text="{Binding Source={StaticResource Settings}, Path=Default.FaceAPICallCount}"/><LineBreak />
-                    <Run Text="Vision API calls made = "/><Run Text="{Binding Source={StaticResource Settings}, Path=Default.VisionAPICallCount}"/>
                 </TextBlock>
                 <CheckBox Margin="5" IsChecked="{Binding Source={StaticResource Settings}, Path=Default.AutoStopEnabled}" ContentStringFormat="Automatically stop after {0}" Content="{Binding Source={StaticResource Settings}, Path=Default.AutoStopTime}" />
                 <Button Margin="5" Content="Save" Click="SaveSettingsButton_Click" />

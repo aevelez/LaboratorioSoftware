@@ -158,7 +158,7 @@ namespace LiveCameraSample
                     // Detect faces from load image.
                     var detectWithStreamCmd = new DetectWithStreamCmd();
                     byte[] jpeg = File.ReadAllBytes(DocumentImagePath);
-                    var faces = await detectWithStreamCmd.DetectWithStreamAsync(jpeg, recognitionModel: RecognitionModel.Recognition03, detectionModel: DetectionModel.Detection02);
+                    var faces = await detectWithStreamCmd.DetectWithStreamAsync(jpg, recognitionModel: RecognitionModel.Recognition03, detectionModel: DetectionModel.Detection02);
 
                     //// Add detected faceId to list of GUIDs.
                     if (faces.Count <= 0)
@@ -229,38 +229,8 @@ namespace LiveCameraSample
             var comboBox = sender as ComboBox;
             comboBox.ItemsSource = Enumerable.Range(0, numCameras).Select(i => string.Format("Camera {0}", i + 1));
             comboBox.SelectedIndex = 0;
-        }
-
-        /// <summary> Populate ModeList in the UI, once it is loaded. </summary>
-        /// <param name="sender"> Source of the event. </param>
-        /// <param name="e">      Routed event information. </param>
-        private void ModeList_Loaded(object sender, RoutedEventArgs e)
-        {
-            var modes = (AppMode[])Enum.GetValues(typeof(AppMode));
-
-            var comboBox = sender as ComboBox;
-            comboBox.ItemsSource = modes.Select(m => m.ToString());
-            comboBox.SelectedIndex = 0;
-        }
-
-        private void ModeList_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            // Disable "most-recent" results display. 
-            _fuseClientRemoteResults = false;
-
-            var comboBox = sender as ComboBox;
-            var modes = (AppMode[])Enum.GetValues(typeof(AppMode));
-            _mode = modes[comboBox.SelectedIndex];
-            switch (_mode)
-            {
-                case AppMode.Faces:
-                    _grabber.AnalysisFunction = FacesAnalysisFunction;
-                    break;
-                default:
-                    _grabber.AnalysisFunction = null;
-                    break;
-            }
-        }
+        }              
+       
 
         private async void StartButton_Click(object sender, RoutedEventArgs e)
         {
@@ -280,7 +250,7 @@ namespace LiveCameraSample
                 Endpoint = Properties.Settings.Default.FaceAPIHost
             };
 
-
+            _grabber.AnalysisFunction = FacesAnalysisFunction;
             // How often to analyze. 
             _grabber.TriggerAnalysisOnInterval(Properties.Settings.Default.AnalysisInterval);
 

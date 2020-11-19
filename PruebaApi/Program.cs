@@ -31,30 +31,30 @@ namespace PruebaApi
 
         private static async void NewMethod()
         {
-            IList<Guid?> targetFaceIds = new List<Guid?>();
-            byte[] jpg = File.ReadAllBytes(@"C:\Users\Marco\Documents\images.jpg");
-            var detectWithStreamCmd = new DetectWithStreamCmd();
-            var faces = await detectWithStreamCmd.DetectWithStreamAsync(jpg, RecognitionModel.Recognition03, DetectionModel.Detection02);
-            if (faces.Count <= 0)
-                Console.Write("no Faces detected in the image.");
+            //IList<Guid?> targetFaceIds = new List<Guid?>();
+            //byte[] jpg = File.ReadAllBytes(@"C:\Users\Marco\Documents\images.jpg");
+            //var detectWithStreamCmd = new DetectWithStreamCmd();
+            //var faces = await detectWithStreamCmd.DetectWithStreamAsync(jpg, RecognitionModel.Recognition03, DetectionModel.Detection02);
+            //if (faces.Count <= 0)
+            //    Console.Write("no Faces detected in the image.");
 
-            targetFaceIds.Add(faces[0].FaceId.Value);
+            //targetFaceIds.Add(faces[0].FaceId.Value);
 
-            //287c7a8d-263c-4a25-ba5f-08c051c1494f
+            ////287c7a8d-263c-4a25-ba5f-08c051c1494f
 
-            var verifyFaceToFaceCmd = new VerifyFaceToFaceCmd();
-            var similarResults = await verifyFaceToFaceCmd.VerifyFaceToFaceAsync(Guid.Parse("287c7a8d-263c-4a25-ba5f-08c051c1494f"), targetFaceIds.First().Value);
+            //var verifyFaceToFaceCmd = new VerifyFaceToFaceCmd();
+            //var similarResults = await verifyFaceToFaceCmd.VerifyFaceToFaceAsync(Guid.Parse("287c7a8d-263c-4a25-ba5f-08c051c1494f"), targetFaceIds.First().Value);
 
-            if (similarResults.IsIdentical)
-            {
-                Console.Write($"Faces are similar with confidence: {similarResults.Confidence}");
-                //return true;
-            }
-            else
-            {
-                Console.Write($"Faces are not identical.");
-                //return true;
-            }
+            //if (similarResults.IsIdentical)
+            //{
+            //    Console.Write($"Faces are similar with confidence: {similarResults.Confidence}");
+            //    //return true;
+            //}
+            //else
+            //{
+            //    Console.Write($"Faces are not identical.");
+            //    //return true;
+            //}
         }
     }
 }

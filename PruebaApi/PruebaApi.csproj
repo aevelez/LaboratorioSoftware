@@ -70,9 +70,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LiveCameraCommand\LiveCameraCommand.csproj">
+    <ProjectReference Include="..\LiveCameraCommand\Eafit.OnBoarding.Command.LiveCameraCommand.csproj">
       <Project>{D8B7F08D-46CA-4AFE-A723-873494365544}</Project>
-      <Name>LiveCameraCommand</Name>
+      <Name>Eafit.OnBoarding.Command.LiveCameraCommand</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

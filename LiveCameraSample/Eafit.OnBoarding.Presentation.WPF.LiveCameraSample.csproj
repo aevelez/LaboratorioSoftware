@@ -181,13 +181,13 @@
     <Resource Include="assets\7.png" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LiveCameraCommand\LiveCameraCommand.csproj">
+    <ProjectReference Include="..\LiveCameraCommand\Eafit.OnBoarding.Command.LiveCameraCommand.csproj">
       <Project>{d8b7f08d-46ca-4afe-a723-873494365544}</Project>
-      <Name>LiveCameraCommand</Name>
+      <Name>Eafit.OnBoarding.Command.LiveCameraCommand</Name>
     </ProjectReference>
-    <ProjectReference Include="..\VideoFrameAnalyzer\VideoFrameAnalyzer.csproj">
+    <ProjectReference Include="..\VideoFrameAnalyzer\Eafit.OnBoarding.VideoFrameAnalyzer.csproj">
       <Project>{bec7da78-c953-4a72-924f-2749d1f9f18b}</Project>
-      <Name>VideoFrameAnalyzer</Name>
+      <Name>Eafit.OnBoarding.VideoFrameAnalyzer</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
