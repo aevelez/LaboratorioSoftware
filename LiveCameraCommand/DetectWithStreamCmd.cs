@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -23,7 +24,7 @@ namespace LiveCameraCommand
                     MultipartFormDataContent multiContent = new MultipartFormDataContent();
 
                     multiContent.Add(bytes, "file", "Photo");
-                    var response = await _httpClient.PostAsync(@"https://localhost:44351/LiveCamera", multiContent);
+                    var response = await _httpClient.PostAsync(ConfigurationManager.AppSettings["FaceAPIWrapper"], multiContent);
                     response.EnsureSuccessStatusCode();
                     var data = await response.Content.ReadAsStringAsync();
                     return JsonConvert.DeserializeObject<IList<DetectedFace>>(data);

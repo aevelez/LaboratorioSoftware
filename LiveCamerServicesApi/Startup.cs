@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using LiveCamerServicesApi.Controllers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -26,6 +27,7 @@ namespace LiveCamerServicesApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddTransient(x => Configuration.GetSection("FaceAPI").Get<FaceApiSettings>());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

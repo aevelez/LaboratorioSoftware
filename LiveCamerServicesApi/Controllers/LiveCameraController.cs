@@ -4,7 +4,6 @@ using Microsoft.Azure.CognitiveServices.Vision.Face;
 using Microsoft.Azure.CognitiveServices.Vision.Face.Models;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -16,14 +15,11 @@ namespace LiveCamerServicesApi.Controllers
     [ApiController]
     public class LiveCameraController : ControllerBase
     {
-        // GET <LiveCameraController>
-        [HttpGet]
-        public string Get(int id)
+        private readonly FaceApiSettings _faceApiSettings;
+        public LiveCameraController(FaceApiSettings faceApiSettings)
         {
-            return "value";
+            _faceApiSettings = faceApiSettings;
         }
-
-
 
         // POST: <LiveCameraController>
         [HttpPost]
@@ -33,18 +29,14 @@ namespace LiveCamerServicesApi.Controllers
             {
 
                 IList<DetectedFace> faces = default;
-                if (Request.HasFormContentType)
+                if (Request.HasFormContentType && Request.Form.Files.Any())
                 {
-                    if (Request.Form.Files.Any())
+                    var _faceClient = new FaceClient(new ApiKeyServiceClientCredentials(_faceApiSettings.ServiceApiKey))
                     {
-                        var _faceClient = new FaceClient(new ApiKeyServiceClientCredentials("540f5628a89945699eeccf5bd50aaca4"))
-                        {
-                            Endpoint = @"https://testlaboratioreconocimientofacial.cognitiveservices.azure.com"
-                        };
-                        // Detect faces from load image.
-                        faces = await _faceClient.Face.DetectWithStreamAsync(Request.Form.Files.First().OpenReadStream(), recognitionModel: RecognitionModel.Recognition03, detectionModel: DetectionModel.Detection02);
-                    }
-
+                        Endpoint = _faceApiSettings.EndPoint
+                    };
+                    // Detect faces from load image.
+                    faces = await _faceClient.Face.DetectWithStreamAsync(Request.Form.Files.First().OpenReadStream(), recognitionModel: RecognitionModel.Recognition03, detectionModel: DetectionModel.Detection02);
                 }
                 return faces;
             }
@@ -62,20 +54,25 @@ namespace LiveCamerServicesApi.Controllers
         {
             try
             {
-                var _faceClient = new FaceClient(new ApiKeyServiceClientCredentials("540f5628a89945699eeccf5bd50aaca4"))
+                var _faceClient = new FaceClient(new ApiKeyServiceClientCredentials(_faceApiSettings.ServiceApiKey))
                 {
-                    Endpoint = @"https://testlaboratioreconocimientofacial.cognitiveservices.azure.com"
+                    Endpoint = _faceApiSettings.EndPoint
                 };
-
                 var similarResults = await _faceClient.Face.VerifyFaceToFaceAsync(Guid.Parse(param["faceid"].ToString()), Guid.Parse(param["target"].ToString()));
-
                 return similarResults;
             }
             catch
             {
                 return null;
             }
-
         }
+    }
+
+
+    public class FaceApiSettings
+    {
+        public string ServiceApiKey { get; set; }
+
+        public string EndPoint { get; set; }
     }
 }

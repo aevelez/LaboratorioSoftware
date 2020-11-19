@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -29,7 +30,7 @@ namespace LiveCameraCommand
                 var buffer = Encoding.UTF8.GetBytes(json);
                 var byteContent = new ByteArrayContent(buffer);
                 byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-                var response = await _httpClient.PostAsync(@"https://localhost:44351/LiveCamera/Verify", byteContent);
+                var response = await _httpClient.PostAsync(ConfigurationManager.AppSettings["FaceAPIWrapper"] + "Verify", byteContent);
                 response.EnsureSuccessStatusCode();
                 var data = await response.Content.ReadAsStringAsync();
                 return JsonConvert.DeserializeObject<VerifyResult>(data);
@@ -39,7 +40,7 @@ namespace LiveCameraCommand
                 return new VerifyResult();
                 //throw;
             }
-            
+
         }
     }
 }
