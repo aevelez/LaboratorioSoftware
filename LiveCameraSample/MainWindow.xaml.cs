@@ -57,14 +57,12 @@ namespace LiveCameraSample
     /// </summary>
     public partial class MainWindow : System.Windows.Window
     {
-        private FaceClient _faceClient = null;
         private readonly FrameGrabber<LiveCameraResult> _grabber;
         private static readonly ImageEncodingParam[] s_jpegParams = {
             new ImageEncodingParam(ImwriteFlags.JpegQuality, 60)
         };
-        private bool _fuseClientRemoteResults;
         private LiveCameraResult _latestResultsToDisplay = null;
-        private AppMode _mode;
+
         private DateTime _startTime;
 
         public enum AppMode
@@ -89,7 +87,6 @@ namespace LiveCameraSample
                 {
                     // Display the image in the left pane.
                     LeftImage.Source = e.Frame.Image.ToBitmapSource();
-                    RightImage.Source = VisualizeResult(e.Frame);
                 }));
 
                 // See if auto-stop should be triggered. 
@@ -124,19 +121,19 @@ namespace LiveCameraSample
                     else
                     {
                         _latestResultsToDisplay = e.Analysis;
-
-
-                        // Display the image and visualization in the right pane. 
-                        if (!_fuseClientRemoteResults)
-                        {
-                            RightImage.Source = VisualizeResult(e.Frame);
-                        }
                         if (_latestResultsToDisplay != null && _latestResultsToDisplay.Faces.Any())
                         {
-                            lblResult.Content = "Checking Face...";
-                            if (await FindSimilar(_latestResultsToDisplay.Faces.First()))
+                            if (!string.IsNullOrWhiteSpace(DocumentImagePath))
                             {
-                                await _grabber.StopProcessingAsync();
+                                MessageArea.Text = "Verificando Rostro...";
+                                if (await FindSimilar(_latestResultsToDisplay))
+                                {
+                                    await _grabber.StopProcessingAsync();
+                                }
+                            }
+                            else
+                            {
+                                MessageArea.Text = "Por favor seleccione una imagen";
                             }
                         }
 
@@ -145,7 +142,7 @@ namespace LiveCameraSample
             };
         }
 
-        public async Task<bool> FindSimilar(DetectedFace cameraFace)
+        public async Task<bool> FindSimilar(LiveCameraResult liveCameraResult)
         {
             try
             {
@@ -157,34 +154,34 @@ namespace LiveCameraSample
 
                     // Detect faces from load image.
                     var detectWithStreamCmd = new DetectWithStreamCmd();
-                    byte[] jpeg = File.ReadAllBytes(DocumentImagePath);
-                    var faces = await detectWithStreamCmd.DetectWithStreamAsync(jpg, recognitionModel: RecognitionModel.Recognition03, detectionModel: DetectionModel.Detection02);
+                    var faces = await detectWithStreamCmd.DetectWithStreamAsync(jpg);
 
                     //// Add detected faceId to list of GUIDs.
                     if (faces.Count <= 0)
                     {
-                        lblResult.Content = $"no Faces detected in the image.";
+                        MessageArea.Text = $"No se detectaron rostros en la imagen.";
                         return false;
                     }
                     targetFaceIds.Add(faces[0].FaceId.Value);
                 }
                 var verifyFaceToFaceCmd = new VerifyFaceToFaceCmd();
-                var similarResults = await verifyFaceToFaceCmd.VerifyFaceToFaceAsync(cameraFace.FaceId.Value, targetFaceIds.First().Value);
+                var similarResults = await verifyFaceToFaceCmd.VerifyFaceToFaceAsync(liveCameraResult.Faces.First().FaceId.Value, targetFaceIds.First().Value);
 
                 if (similarResults.IsIdentical)
                 {
-                    lblResult.Content = $"Faces are similar with confidence: {similarResults.Confidence}.";
+                    RightImage.Source = VisualizeResult(liveCameraResult.VideoFrame);
+                    MessageArea.Text = $"Los rostros son similares con una confianza de: {similarResults.Confidence}.";
                     return true;
                 }
                 else
                 {
-                    lblResult.Content = $"Faces are not identical.";
+                    MessageArea.Text = $"Los rostros no son identicos.";
                     return true;
                 }
             }
             catch (Exception ex)
             {
-                lblResult.Content = ex.Message;
+                MessageArea.Text = $"Se ha presentado un error: {ex.Message}";
                 return false;
             }
         }
@@ -199,12 +196,12 @@ namespace LiveCameraSample
             var jpg = frame.Image.ToMemoryStream(".jpg", s_jpegParams);
             // Submit image to API. 
 
-
-            var faces = await _faceClient.Face.DetectWithStreamAsync(jpg, recognitionModel: RecognitionModel.Recognition03, detectionModel: DetectionModel.Detection02);
+            var detectWithStreamCmd = new DetectWithStreamCmd();
+            var faces = await detectWithStreamCmd.DetectWithStreamAsync(jpg);
             // Count the API call. 
             Properties.Settings.Default.FaceAPICallCount++;
             // Output. 
-            return new LiveCameraResult { Faces = faces.ToArray() };
+            return new LiveCameraResult { Faces = faces.ToArray(), VideoFrame = frame };
         }
 
         private BitmapSource VisualizeResult(VideoFrame frame)
@@ -223,14 +220,14 @@ namespace LiveCameraSample
 
             if (numCameras == 0)
             {
-                MessageArea.Text = "No cameras found!";
+                MessageArea.Text = "No se encontraron cámaras!";
             }
 
             var comboBox = sender as ComboBox;
-            comboBox.ItemsSource = Enumerable.Range(0, numCameras).Select(i => string.Format("Camera {0}", i + 1));
+            comboBox.ItemsSource = Enumerable.Range(0, numCameras).Select(i => string.Format("Cámara {0}", i + 1));
             comboBox.SelectedIndex = 0;
-        }              
-       
+        }
+
 
         private async void StartButton_Click(object sender, RoutedEventArgs e)
         {
@@ -239,17 +236,7 @@ namespace LiveCameraSample
                 MessageArea.Text = "No cameras found; cannot start processing";
                 return;
             }
-
-            // Clean leading/trailing spaces in API keys. 
-            Properties.Settings.Default.FaceAPIKey = Properties.Settings.Default.FaceAPIKey.Trim();
-            Properties.Settings.Default.VisionAPIKey = Properties.Settings.Default.VisionAPIKey.Trim();
-
-            // Create API clients.
-            _faceClient = new FaceAPI.FaceClient(new FaceAPI.ApiKeyServiceClientCredentials(Properties.Settings.Default.FaceAPIKey))
-            {
-                Endpoint = Properties.Settings.Default.FaceAPIHost
-            };
-
+            RightImage.Source = null;
             _grabber.AnalysisFunction = FacesAnalysisFunction;
             // How often to analyze. 
             _grabber.TriggerAnalysisOnInterval(Properties.Settings.Default.AnalysisInterval);
@@ -285,7 +272,6 @@ namespace LiveCameraSample
             e.Handled = true;
         }
 
-        private bool disposedValue = false; // To detect redundant calls
         private string DocumentImagePath;
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -307,7 +293,7 @@ namespace LiveCameraSample
                 DocumentImagePath = dlg.FileName;
                 // Open document 
                 DocumentImage.Source = new BitmapImage(new Uri(dlg.FileName));
-               
+
             }
         }
     }

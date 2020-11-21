@@ -31,6 +31,7 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // 
 
+using VideoFrameAnalyzer;
 using FaceAPI = Microsoft.Azure.CognitiveServices.Vision.Face.Models;
 
 namespace LiveCameraSample
@@ -39,6 +40,7 @@ namespace LiveCameraSample
     public class LiveCameraResult
     {
         public FaceAPI.DetectedFace[] Faces { get; set; } = null;
-        public string[] CelebrityNames { get; set; } = null;
+
+        public VideoFrame VideoFrame { get; set; }
     }
 }

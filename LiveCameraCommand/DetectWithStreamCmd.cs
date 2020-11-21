@@ -11,7 +11,7 @@ namespace LiveCameraCommand
 {
     public class DetectWithStreamCmd
     {
-        public async Task<IList<DetectedFace>> DetectWithStreamAsync(Stream photo, string recognitionModel, string detectionModel)
+        public async Task<IList<DetectedFace>> DetectWithStreamAsync(Stream photo)
         {
             try
             {

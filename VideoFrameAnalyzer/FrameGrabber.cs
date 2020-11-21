@@ -251,7 +251,7 @@ namespace VideoFrameAnalyzer
 
             _consumerTask = Task.Factory.StartNew(async () =>
             {
-                while (!_analysisTaskQueue.IsCompleted)
+                while (_analysisTaskQueue != null && !_analysisTaskQueue.IsCompleted)
                 {
                      // Get the next processing task.
                     Task<NewResultEventArgs> nextTask = null;
