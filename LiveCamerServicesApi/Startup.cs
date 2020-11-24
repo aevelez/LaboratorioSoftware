@@ -1,16 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using LiveCamerServicesApi.Controllers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 namespace LiveCamerServicesApi
 {
@@ -28,6 +21,15 @@ namespace LiveCamerServicesApi
         {
             services.AddControllers();
             services.AddTransient(x => Configuration.GetSection("FaceAPI").Get<FaceApiSettings>());
+
+            services.AddSwaggerGen(config =>
+            {
+
+                config.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+                {
+                    Title = "API de prueba"
+                });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -47,6 +49,18 @@ namespace LiveCamerServicesApi
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+            });
+
+            app.UseSwagger();
+            app.UseSwaggerUI(config =>
+            {
+#if DEBUG
+                // For Debug in Kestrel
+                config.SwaggerEndpoint("/swagger/v1/swagger.json", "API de prueba");
+#else
+   // To deploy on IIS
+   config.SwaggerEndpoint("/InMotionService/swagger/v1/swagger.json", "API de prueba");
+#endif
             });
         }
     }
